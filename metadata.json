@@ -1,0 +1,5 @@
+{
+  "name": "DataLens AI",
+  "description": "An intelligent dashboard that instantly analyzes Excel datasets using Gemini 2.5 to generate visual insights, summaries, and KPIs.",
+  "requestFramePermissions": []
+}
