@@ -14,6 +14,15 @@ interface ChartWidgetProps {
 
 const COLORS = ['#4f46e5', '#06b6d4', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#ef4444'];
 
+const formatXAxisTick = (value: any) => {
+  const s_value = String(value);
+  if (s_value.length > 20) {
+    return s_value.substring(0, 18) + '...';
+  }
+  return s_value;
+};
+
+
 export const ChartWidget: React.FC<ChartWidgetProps> = ({ config, data }) => {
   // State for the slicer (number of items to show)
   const [itemCount, setItemCount] = useState(10);
@@ -53,13 +62,22 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({ config, data }) => {
                 angle={-15}
                 textAnchor="end"
                 height={60}
+                tickFormatter={formatXAxisTick}
             />
             <YAxis tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
             <Legend wrapperStyle={{paddingTop: '20px'}} />
-            {config.dataKeys.map((key, index) => (
-              <Bar key={key} dataKey={key} fill={COLORS[index % COLORS.length]} radius={[4, 4, 0, 0]} />
-            ))}
+            {config.dataKeys.length === 1 ? (
+              <Bar dataKey={config.dataKeys[0]} radius={[4, 4, 0, 0]}>
+                {visibleData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Bar>
+            ) : (
+              config.dataKeys.map((key, index) => (
+                <Bar key={key} dataKey={key} fill={COLORS[index % COLORS.length]} radius={[4, 4, 0, 0]} />
+              ))
+            )}
           </BarChart>
         );
       case ChartType.LINE:
@@ -74,6 +92,7 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({ config, data }) => {
                 angle={-15}
                 textAnchor="end"
                 height={60}
+                tickFormatter={formatXAxisTick}
             />
             <YAxis tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
@@ -95,6 +114,7 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({ config, data }) => {
                 angle={-15}
                 textAnchor="end"
                 height={60}
+                tickFormatter={formatXAxisTick}
             />
             <YAxis tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} />
             <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
@@ -130,7 +150,7 @@ export const ChartWidget: React.FC<ChartWidgetProps> = ({ config, data }) => {
             return (
               <ScatterChart>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis type="category" dataKey={config.xAxisKey} name={config.xAxisKey} tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} height={60} />
+                <XAxis type="number" dataKey={config.xAxisKey} name={config.xAxisKey} tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} height={60} />
                 <YAxis type="number" dataKey={config.dataKeys[0]} name={config.dataKeys[0]} tick={{fill: '#64748b', fontSize: 12}} axisLine={false} tickLine={false} />
                 <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                 <Scatter name={config.title} data={visibleData} fill="#8884d8">

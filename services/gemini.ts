@@ -81,7 +81,7 @@ export const analyzeDataset = async (data: DataSet): Promise<AnalysisResult> => 
   const sampleJson = JSON.stringify(sampleRows, null, 2);
 
   // 3. Construct Prompt
-  // We explicitly instruct the model to use the detailed stats for deep insights.
+  // We explicitly instruct the model to create specific charts.
   const prompt = `
     You are an expert Senior Data Analyst. I will provide you with a dataset sample and DETAILED STATISTICAL METADATA about the full dataset.
     
@@ -96,18 +96,31 @@ export const analyzeDataset = async (data: DataSet): Promise<AnalysisResult> => 
     3. **DEEP DIVE INSIGHTS (CRITICAL):**
        - Provide 8-10 detailed, specific, and actionable insights.
        - Do NOT provide generic observations like "There are many products". 
-       - INSTREAD, say "The product 'X' is the top seller with 500 orders, followed by 'Y' (300 orders)."
+       - INSTEAD, say "The product 'X' is the top seller with 500 orders, followed by 'Y' (300 orders)."
        - Look for distributions: Which categories are heavily represented? (Use the 'Top Values' stats provided).
        - Look for anomalies: Are there specific outliers in numeric data?
        - Mention specific item names, regions, or categories that stand out.
     4. Define 3-4 Key Performance Indicators (KPIs). 
        - Use the 'DATASET STATS' provided above for accurate counts (e.g., "Total Orders", "Unique Customers"). 
        - Do NOT calculate totals based only on the 50-row sample.
-    5. Suggest 3-4 distinct visualizations (Charts).
-       - If the dataset is CATEGORICAL (e.g., Status, Region, Product), visualization of FREQUENCY is best.
-       - **To show frequency/counts, use 'Record_Count' as the dataKey.** 
-         Example: { title: "Top 10 Products by Order Volume", xAxisKey: "Product Name", dataKeys: ["Record_Count"], type: "bar" }
-       - Choose from chart types: 'bar', 'line', 'pie', 'area', 'scatter'.
+    5. Suggest EXACTLY 3 visualizations (Charts) based on the following requirements:
+       - **Chart 1: Category Distribution.** Find the main categorical column (like 'Category', 'Type', etc.) and create a bar chart showing the count per category. Title it appropriately (e.g., 'Record Count by Category').
+         - type: "bar"
+         - xAxisKey: [The name of the categorical column you identified]
+         - dataKeys: ["Record_Count"]
+         - description: "Shows the total number of records for each category."
+       - **Chart 2: Price/Value Histogram.** Find the primary numeric column representing a value like price, sales, or amount. Create a bar chart to show its distribution (a histogram). Title it appropriately (e.g., 'Price Distribution'). My application will automatically create histogram bins from this configuration.
+         - type: "bar"
+         - xAxisKey: [The name of the numeric column you identified]
+         - dataKeys: ["Record_Count"]
+         - description: "A histogram showing the frequency distribution of prices/values."
+       - **Chart 3: Most Frequent Items.** Find the column with specific item names (like 'Product Name', 'Part Description'). Create a bar chart showing the count of the most frequent items. Title it appropriately (e.g., 'Top 10 Most Frequent Parts').
+         - type: "bar"
+         - xAxisKey: [The name of the item column you identified]
+         - dataKeys: ["Record_Count"]
+         - description: "Displays the most common items found in the dataset."
+
+       **CRITICAL RULE:** For all 3 charts, you MUST use \`["Record_Count"]\` as the \`dataKeys\` value to ensure frequencies are plotted correctly. Do not use any other column name for \`dataKeys\`.
 
     Dataset Sample (First 50 rows):
     ${sampleJson}
